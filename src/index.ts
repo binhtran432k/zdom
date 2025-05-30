@@ -1,5 +1,8 @@
 export {
   derive,
   state,
-  toDoms,
 } from "./core";
+export type {
+  JSX,
+  PropsWithChildren,
+} from "./jsx";

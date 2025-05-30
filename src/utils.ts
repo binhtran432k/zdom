@@ -1,6 +1,17 @@
-import { ZDomElement, ZDomState } from "./core";
+import { zdomStateProto, zdomElemProto } from "./core.js";
+import type { JSX } from "./jsx";
 
 export let _undefined: undefined;
+export const _Object: typeof Object = Object;
+export const _String: typeof String = String;
+export const _document: typeof document = document;
+
+export const protoOf = (x: unknown): any => x ? _Object.getPrototypeOf(x): x;
+
+export const createWithProto = <U, V extends Object>(
+  obj: U,
+  proto: V,
+): U & V => (_Object.setPrototypeOf(obj, proto), obj as U & V);
 
 export interface ZDomDeps {
   /** Getters */
@@ -9,48 +20,47 @@ export interface ZDomDeps {
   ss: Set<ZDomState>;
 }
 
-export interface ZDomBinding<T = unknown> {
+export interface ZDomBinding<
+  U = unknown,
+  V extends ConnectableDom = ConnectableDom
+> {
   /** Binding Function */
   f: (x: any) => any;
   /** State */
-  s?: ZDomState<T>;
+  s?: ZDomState<U>;
   /** Dom */
-  d?: ChildNode;
+  d?: V;
+}
+
+export interface ConnectableDom {
+  isConnected: unknown;
+}
+
+export interface ZDomState<T = unknown> {
+  rawVal: T;
+  /** @internal Old Value */
+  ov: T;
+  /** @internal Bindings */
+  bs: ZDomBinding[];
+  /** @internal Listeners */
+  ls: ZDomBinding[];
+  get val(): T;
+  get oldVal(): T;
+  set val(v: T);
+}
+
+export interface ZDomElement {
+  v: [
+    tagName: string,
+    props: Record<string, unknown> & { is?: string },
+    children?: JSX.Element,
+  ];
 }
 
 export const newDeps = (): ZDomDeps => ({
   gs: new Set,
   ss: new Set,
 });
-
-export const setAttr = (
-  elem: Element,
-  name: string,
-  value: unknown,
-): void | boolean =>
-  value != _undefined
-  && value !== false
-  && elem.setAttribute(name, value === true
-    ? name
-    : String(value));
-
-export const setEvent = (
-  elem: Element,
-  event: string,
-  value: unknown,
-  oldValue?: unknown,
-): void | boolean => (
-  isFunction(oldValue) && elem.removeEventListener(event, oldValue),
-  isFunction(value) && elem.addEventListener(event, value)
-);
-
-export const updateRawDom = (
-  dom: ChildNode,
-  newDom?: Node | string,
-): false | void =>
-  newDom
-    ? newDom !== dom && dom.replaceWith(newDom)
-    : dom.remove();
 
 export const addAndScheduleOnFirst = <T>(
   set: Set<T> | undefined,
@@ -63,13 +73,41 @@ export const addAndScheduleOnFirst = <T>(
       new Set)
   ).add(s);
 
-export const keepConnected = <T>(l: ZDomBinding<T>[]): ZDomBinding<T>[] =>
+export const getPropDescriptior = (
+  obj: unknown,
+  k: string,
+): PropertyDescriptor | undefined =>
+  obj
+    ? (_Object.getOwnPropertyDescriptor(obj, k)
+      ?? getPropDescriptior(protoOf(obj), k))
+    : _undefined;
+
+export const keepConnected = <U>(l: ZDomBinding<U>[]): ZDomBinding<U>[] =>
   l.filter(b => b.d?.isConnected);
 
-export const isZDomElement = (x: unknown): x is ZDomElement => x instanceof ZDomElement;
+export const isNode = (x: unknown): x is Node =>
+  (x as Node).nodeType as unknown as boolean;
 
-export const isZDomState = (x: unknown): x is ZDomState => x instanceof ZDomState;
+export const isZDomElement = (x: unknown): x is ZDomElement =>
+  protoOf(x) == zdomElemProto;
 
-export const isNode = (x: unknown): x is Node => x instanceof Node;
+export const isZDomState = (x: unknown): x is ZDomState =>
+  protoOf(x) == zdomStateProto;
 
-export const isFunction = (x: unknown): x is () => any => typeof x == "function";
+const funcProto = protoOf(protoOf);
+export const isFunction = <T>(
+  x: T | Function,
+): x is Function | Extract<T, Function> =>
+  protoOf(x) == funcProto;
+
+const stringProto = protoOf("");
+export const isString = (
+  x: unknown,
+): x is string =>
+  protoOf(x) == stringProto;
+
+const objProto = protoOf({});
+export const isObject = (
+  x: unknown,
+): boolean =>
+  protoOf(x) == objProto;

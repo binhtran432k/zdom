@@ -1,4 +1,4 @@
-import { zdomStateProto, zdomElemProto } from "./core.js";
+import { zdomStateProto, zdomElemProto } from "./core";
 import type { JSX } from "./jsx";
 
 export let _undefined: undefined;
@@ -6,7 +6,7 @@ export const _Object: typeof Object = Object;
 export const _String: typeof String = String;
 export const _document: typeof document = document;
 
-export const protoOf = (x: unknown): any => x ? _Object.getPrototypeOf(x): x;
+export const protoOf = (x: unknown): unknown => x ? _Object.getPrototypeOf(x): x;
 
 export const createWithProto = <U, V extends Object>(
   obj: U,

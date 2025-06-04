@@ -1,17 +1,45 @@
 {
   "name": "zdom",
   "type": "module",
+  "version": "0.0.0",
+  "files": ["src/**/*.ts", "out"],
   "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./proxy": "./src/proxy.ts",
-    "./bundle": "./src/bundle.js",
-    "./jsx-runtime": "./src/jsx-runtime.ts",
-    "./jsx-dev-runtime": "./src/jsx-runtime.ts"
+    ".": {
+      "bun": "./src/index.ts",
+      "types": "./src/index.ts",
+      "default": "./out/index.js"
+    },
+    "./client": {
+      "bun": "./src/client.ts",
+      "types": "./src/client.ts",
+      "default": "./out/client.js"
+    },
+    "./proxy": {
+      "bun": "./src/proxy.ts",
+      "types": "./src/proxy.ts",
+      "default": "./out/proxy.js"
+    },
+    "./bundle": {
+      "types": "./src/bundle.d.ts",
+      "default": "./out/bundle.js"
+    },
+    "./jsx-runtime": {
+      "bun": "./src/jsx-runtime.ts",
+      "types": "./src/jsx-runtime.ts",
+      "default": "./out/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "bun": "./src/jsx-runtime.ts",
+      "types": "./src/jsx-runtime.ts",
+      "default": "./out/jsx-runtime.js"
+    }
   },
   "workspaces": [
     "examples/*"
   ],
+  "scripts": {
+    "gen": "bun scripts/gen.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   }

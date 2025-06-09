@@ -1,21 +1,31 @@
-import { newZDomElement } from "./core";
-import type { JSX, PropsWithChildren, ZDomJSXDecl } from "./jsx";
-import { _undefined, isFunction } from "./utils";
+import { tag } from "./core";
+import {
+	type PropsWithChildren,
+	type ZDomElement,
+	type ZDomElementAttributes,
+	type ZDomIntrinsicElements,
+	_undefined,
+	isFunction,
+} from "./utils";
 
-export type { JSX } from "./jsx";
+export namespace JSX {
+	export type Element = ZDomElement;
+	export type IntrinsicElements = ZDomIntrinsicElements;
+}
+
+type ZDomJSXDecl = string | ((props: Record<string, unknown>) => JSX.Element);
 
 export const Fragment = (props: PropsWithChildren): JSX.Element =>
-  props.children;
+	props.children;
 
 const createElement = (
-  decl: ZDomJSXDecl,
-  propsWithChildren: PropsWithChildren<Record<string, unknown>>,
+	decl: ZDomJSXDecl,
+	propsWithChildren: PropsWithChildren<ZDomElementAttributes>,
 ): JSX.Element => {
-  if (isFunction(decl))
-    return decl(propsWithChildren);
-  const { children, ...props } = propsWithChildren;
-  return newZDomElement([decl, props, children]);
-}
+	if (isFunction(decl)) return decl(propsWithChildren);
+	const { children, ...props } = propsWithChildren;
+	return tag(decl, props, children);
+};
 
 export const jsx: typeof createElement = createElement;
 export const jsxs: typeof createElement = createElement;

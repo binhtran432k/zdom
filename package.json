@@ -9,6 +9,11 @@
 			"types": "./src/index.ts",
 			"default": "./out/index.js"
 		},
+		"./prerender": {
+			"bun": "./src/prerender.ts",
+			"types": "./src/prerender.ts",
+			"default": "./out/prerender.js"
+		},
 		"./nojsx": {
 			"bun": "./src/nojsx.ts",
 			"types": "./src/nojsx.ts",

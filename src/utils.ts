@@ -87,6 +87,7 @@ interface CommonAttributes {
 	dir: "ltr" | "rtl" | "auto";
 	draggable: "true" | "false";
 	popover: "auto" | "hint" | "manual";
+	spellcheck: "true" | "false";
 
 	action: string;
 	alt: string;
@@ -127,6 +128,8 @@ interface CommonAttributes {
 
 interface StrictCommonAttributes {
 	is: string;
+	innerHTML: string;
+	outerHTML: string;
 	xmlns: ZDomXmlNS;
 }
 

@@ -18,7 +18,9 @@ export type SmartTagFunc = (
 	...rest: Parameters<TagFunc>
 ) => ReturnType<TagFunc>;
 
-export type ZDomTags = Record<string, TagFunc> & SmartTagFunc;
+export interface ZDomTags extends SmartTagFunc {
+	[k: string]: TagFunc;
+}
 
 export interface ZDom {
 	derive: typeof derive;

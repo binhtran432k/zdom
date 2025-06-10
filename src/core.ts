@@ -88,7 +88,7 @@ export const tag = (
 	Object.entries(props)
 		.filter(([, v]) => v != _undefined)
 		.map<[(x: unknown, ox?: unknown) => unknown, unknown]>(([k, v]) =>
-			k.startsWith("on")
+			k.startsWith("on") && isFunction(isZDomState(v) ? v.rawVal : v)
 				? [getEventSetter(dom, k.slice(2)), v]
 				: [
 						getAttrSetter(dom, k),

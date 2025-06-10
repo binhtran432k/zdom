@@ -29,5 +29,5 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false
 	},
-	"includes": ["src", "bundle"]
+	"includes": ["src", "bundle", "test"]
 }

@@ -27,10 +27,7 @@ const alwaysConnectedDom: Readonly<ConnectableDom> = { isConnected: 1 };
 let derivedStates: Set<ZDomState> | undefined;
 let changedStates: Set<ZDomState> | undefined;
 
-let curCreateElement: (
-	tagName: string,
-	options: ElementCreationOptions,
-) => Element = document.createElement.bind(document);
+let curNS: ZDomXmlNS | undefined;
 
 const GC_CYCLE_IN_MS = 1000;
 
@@ -70,21 +67,23 @@ export const state = <T>(x: T): ZDomState<T> =>
 	);
 
 export const withNS = <T>(ns: ZDomXmlNS, f: (ns: ZDomXmlNS) => T): T => {
-	const preCreateElement = curCreateElement;
+	const preNS = curNS;
 	try {
-		curCreateElement = document.createElementNS.bind(document, ns);
+		curNS = ns;
 		return f(ns);
 	} finally {
-		curCreateElement = preCreateElement;
+		curNS = preNS;
 	}
 };
 
 export const tag = (
 	tagName: HintedString<keyof ZDomIntrinsicElements>,
-	{ is, ...props }: ZDomElementAttributes,
+	{ is, innerHTML, outerHTML, ...props }: ZDomElementAttributes,
 	...children: ZDomElement[]
 ): Element => {
-	const dom = curCreateElement(tagName, { is });
+	const dom = curNS
+		? document.createElementNS(curNS, tagName, { is })
+		: document.createElement(tagName, { is });
 
 	Object.entries(props)
 		.filter(([, v]) => v != _undefined)
@@ -100,7 +99,11 @@ export const tag = (
 			isZDomState(v) ? bind(() => (setter(v.val, v.ov), dom)) : setter(v),
 		);
 
-	dom.append(...toDoms(children));
+	outerHTML
+		? (dom.outerHTML = outerHTML)
+		: innerHTML
+			? (dom.innerHTML = innerHTML)
+			: dom.append(...toDoms(children));
 
 	return dom;
 };
@@ -115,14 +118,13 @@ export const toDoms = (...children: ZDomElement[]): (Node | string)[] =>
 					? bind(child as (x?: unknown) => unknown)
 					: child,
 		)
-		.filter((child) => child != _undefined)
+		.filter((x) => x)
 		.map((child) => (isNode(child) ? child : String(child)));
 
 const getAttrSetter =
 	(elem: Element, attrName: string): ((v: unknown) => unknown) =>
 	(v) =>
-		v != _undefined &&
-		v !== false &&
+		(v || v === 0) &&
 		elem.setAttribute(attrName, v === true ? attrName : String(v));
 
 const getEventSetter =

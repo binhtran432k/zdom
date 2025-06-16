@@ -58,6 +58,7 @@ class PrerenderElement {
 	private attributes: Record<string, string> = {};
 	private children: (PrerenderElement | string)[] = [];
 	private isRemoved?: 1;
+	private overrideInnerHTML?: string;
 	private overrideOuterHTML?: string;
 
 	constructor(
@@ -67,6 +68,8 @@ class PrerenderElement {
 
 	get innerHTML(): string {
 		if (this.isRemoved) return "";
+
+		if (this.overrideInnerHTML) return this.overrideInnerHTML;
 
 		const grpChildren: (PrerenderElement | string)[] = [];
 
@@ -93,7 +96,7 @@ class PrerenderElement {
 	}
 
 	set innerHTML(v: string) {
-		this.children = [v];
+		this.overrideInnerHTML = v;
 	}
 
 	get outerHTML(): string {

@@ -1,5 +1,5 @@
-import { test } from "node:test";
 import assert from "node:assert";
+import { test } from "node:test";
 import zdom from "../src/nojsx";
 import { prerender } from "../src/prerender";
 
@@ -427,5 +427,20 @@ test("example: van-plate-server", () => {
 	assert.equal(
 		prerender(() => input!({ type: "text", value: "Value" })),
 		`<input type="text" value="Value">`,
+	);
+});
+
+test("example: innerHTML and outerHTML", () => {
+	assert.equal(
+		prerender(() =>
+			div!({ class: "main", innerHTML: "<h1>Head</h1>" }, "Main"),
+		),
+		`<div class="main"><h1>Head</h1></div>`,
+	);
+	assert.equal(
+		prerender(() =>
+			div!({ class: "main", outerHTML: "<h1>Head</h1>" }, "Main"),
+		),
+		`<h1>Head</h1>`,
 	);
 });
